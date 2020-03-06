@@ -1,0 +1,103 @@
+package appiumtest;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.Dimension;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.annotations.BeforeClass;
+
+import io.appium.java_client.AppiumDriver;
+import io.appium.java_client.FindsByAndroidUIAutomator;
+import io.appium.java_client.MobileBy;
+import io.appium.java_client.MobileDriver;
+import io.appium.java_client.MobileElement;
+import io.appium.java_client.android.AndroidDriver;
+import io.appium.java_client.android.AndroidElement;
+
+public class MyShadi {
+
+	static AppiumDriver<MobileElement> driver;
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		try {
+			LaunchApp();
+		}catch(Exception e) {
+			System.out.println(e.getCause());
+			System.out.println(e.getMessage());
+			System.out.println(e.getStackTrace());
+		}
+
+	}
+
+	@BeforeClass
+	public static void LaunchApp() throws MalformedURLException, InterruptedException {
+
+		DesiredCapabilities caps = new	DesiredCapabilities();
+		caps.setCapability("deviceName", "Android Emulator");
+		caps.setCapability("udid", "emulator-5554");
+		caps.setCapability("platformName", "Android");
+		caps.setCapability("platformVersion", "8.1");
+		caps.setCapability("appPackage", "com.shaadi.android");
+		caps.setCapability("appActivity", "com.shaadi.android.ui.splash.SplashScreenActivity");
+
+		driver = new AndroidDriver<MobileElement>(new URL("http://127.0.0.1:4723/wd/hub"), caps);
+
+		System.out.println("Application started..");
+
+		driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+
+		MobileElement login = driver.findElement(By.id("com.shaadi.android:id/btn_morph_login"));
+		login.click();
+
+		MobileElement EmailorMobile = driver.findElement(By.id("com.shaadi.android:id/edt_username"));
+		EmailorMobile.sendKeys("ambutambe3@gmail.com");
+
+		MobileElement password = driver.findElement(By.id("com.shaadi.android:id/edt_password"));
+		password.sendKeys("SangeetaS");
+
+		MobileElement login2 = driver.findElement(By.id("com.shaadi.android:id/btn_login"));
+		login2.click();
+
+		WebDriverWait wait = new WebDriverWait(driver, 30);
+		wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("com.shaadi.android:id/img_profile_images")));
+
+		MobileElement myShaadi = driver.findElement(By.id("com.shaadi.android:id/tvMyShaadi"));
+		myShaadi.click();
+
+		List<MobileElement> allMatches = driver.findElementsByXPath("//*[@resource-id='com.shaadi.android:id/tv_title']");
+		
+		for (WebElement mobElement : allMatches) {
+			
+	        if(mobElement.getText().contains("Premium Matches")) {
+	        	System.out.println("Premium Matches Connect Now");
+	        	ClickConnectNow();
+	        	continue;
+	        }
+	        MobileElement el = (MobileElement) ((FindsByAndroidUIAutomator<MobileElement>) driver)
+	        	    .findElementByAndroidUIAutomator("new UiScrollable("
+	        	        + "new UiSelector().scrollable(true)).scrollIntoView("                      
+	        	        + "new UiSelector().textContains(\"New Matches\"));");
+	        	el.click();
+	        	ClickConnectNow();
+		}
+	}
+	
+	     public static void ClickConnectNow() {
+	    	 List<MobileElement> ConnectNow = driver.findElementsByXPath("//*[@text='Connect Now']");
+				
+				for (int i = 0; i < ConnectNow.size(); i++) {
+		            if (ConnectNow.get(i).getAttribute("class").equals("android.widget.TextView")) {
+		                ConnectNow.get(i).click();
+		                break;
+		            }
+	     }
+	}
+}
